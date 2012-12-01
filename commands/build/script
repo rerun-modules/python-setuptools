@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+
+# To implement this command, edit the "Command implementation" section below. 
+
+# Usage
+# -----
+
+# Comments prefixed with `#/` are managed by stubbs.
+# The `command` and `usage` comments describe the command
+# and show its options.
+# 
+#/ command: python-setuptools:build: "Produce a package of indicated format based on a PyPI based distribution"
+#/ usage: rerun python-setuptools:build [ --format <rpm>]  --version <>  --directory <> [ --url <http://pypi.python.org/packages/source>]  --name <> 
+
+# Load common functions
+# ---------------------
+
+# Load the function library for this module.
+# This loads rerun functions, too.
+. $RERUN_MODULE_DIR/lib/functions.sh build || { 
+  echo >&2 "Failed loading function library." ; exit 1 ; 
+}
+
+# Error handling
+# ---------------
+
+# This script is designed to _fail-fast_.
+
+# Trap errors and exit. The call to `rerun_die` will print the
+# the error message and exit with the error command exit status. 
+
+trap 'rerun_die $? "*** command failed: python-setuptools:build. ***"' ERR
+
+# Run [set] `nounset` to treat unset variables as errors. Set [pipefail]
+# so a pipeline return status is the value of the last 
+# (rightmost) command to exit with non-zero status.
+#
+# [set]: http://ss64.com/bash/set.html
+# [pipefail]: http://www.gnu.org/software/bash/manual/html_node/Pipelines.html
+
+set -o nounset -o pipefail
+
+# Command variables
+# -----------------
+
+# This command script can access the following variables
+# declared by `rerun` or by the option parser function.
+
+#/ rerun-variables: RERUN, RERUN_VERSION, RERUN_MODULES, RERUN_MODULE_DIR
+#/ option-variables: FORMAT VERSION DIRECTORY URL NAME
+
+# The `rerun_options_parse` function processes the command line
+# arguments. Each accepted command line flag results in setting 
+# one the corresponding option variables.
+
+rerun_options_parse "$@"
+
+
+# Command implementation
+# ----------------------
+
+
+buildrpm() {
+   mkdir -p "${DIRECTORY}"
+   N=$(echo "${NAME}" |cut -c1)
+   distUrl="${URL}/${N}/${NAME}/${NAME}-${VERSION}.tar.gz"
+   tmpDir=$(mktemp -d)
+   popDir=$(pwd)
+   cd "${tmpDir}"
+   curl -s -k -f -o ${NAME}-${VERSION}.tar.gz "${distUrl}"
+   tar zxf ${NAME}-${VERSION}.tar.gz
+   cd ${NAME}-${VERSION}
+   python setup.py bdist_rpm > /dev/null 2>&1
+   rpm -qpl dist/${NAME}-${VERSION}-1.noarch.rpm > /dev/null 2>&1
+   cp dist/${NAME}-${VERSION}-1.noarch.rpm "${DIRECTORY}"
+   cd ${popDir}
+   rm -rf "${tmpDir}"
+}
+
+
+case $FORMAT in
+   "rpm")
+      buildrpm 
+      ;;
+   *)
+      rerun_die "invalid format ${FORMAT}"
+      ;;
+esac
+
+# Done. Exit with last command exit status.
+exit $?
+
