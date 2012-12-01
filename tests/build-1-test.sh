@@ -15,7 +15,7 @@
 describe "build"
 
 
-it_fails_without_a_real_test() {
+it_succeeds_with_Pygments() {
    tmpDir=$(mktemp -d)
    rerun python-setuptools:build --version 1.5 --directory "${tmpDir}" --name Pygments
    rpm -qp "${tmpDir}/Pygments-1.5-1.noarch.rpm"
