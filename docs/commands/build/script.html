@@ -118,7 +118,14 @@ rerun_options_parse <span class="s2">&quot;$@&quot;</span>
 
 </td><td class=code><div class=highlight><pre>
 
+</pre></div></td></tr><tr><td class=docs>
 
+<p>From the PyPI name and version information, derive a url to download the tgz distribution.
+Execute the python setup bdist_rpm (see http://docs.python.org/release/2.0/dist/creating-rpms.html) on the extracted
+distribution to generate the RPM.
+Finally, copy the rpm to the provided directory name.</p>
+
+</td><td class=code><div class=highlight><pre>
 buildrpm<span class="o">()</span> <span class="o">{</span>
    mkdir -p <span class="s2">&quot;${DIRECTORY}&quot;</span>
    <span class="nv">N</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span> <span class="s2">&quot;${NAME}&quot;</span> |cut -c1<span class="k">)</span>
@@ -157,6 +164,11 @@ buildrpm<span class="o">()</span> <span class="o">{</span>
 <span class="o">}</span>
 
 
+</pre></div></td></tr><tr><td class=docs>
+
+<p>Supported output format (RPM only)</p>
+
+</td><td class=code><div class=highlight><pre>
 <span class="k">case</span> <span class="nv">$FORMAT</span> in
    <span class="s2">&quot;rpm&quot;</span><span class="o">)</span>
       buildrpm 

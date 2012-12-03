@@ -59,7 +59,12 @@ rerun_options_parse "$@"
 # Command implementation
 # ----------------------
 
-
+#
+# From the PyPI name and version information, derive a url to download the tgz distribution.
+# Execute the python setup bdist_rpm (see http://docs.python.org/release/2.0/dist/creating-rpms.html) on the extracted
+# distribution to generate the RPM.
+# Finally, copy the rpm to the provided directory name.
+#
 buildrpm() {
    mkdir -p "${DIRECTORY}"
    N=$(echo "${NAME}" |cut -c1)
@@ -98,6 +103,9 @@ buildrpm() {
 }
 
 
+#
+# Supported output format (RPM only)
+#
 case $FORMAT in
    "rpm")
       buildrpm 

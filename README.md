@@ -1,5 +1,4 @@
-[python-setuptools](http://pypi.python.org/pypi/setuptools), which uses Python&apos;s setuptools, is an interface to generating system packaging from Python PyPI distributions.
-
+[python-setuptools](http://pypi.python.org/pypi/setuptools), is an interface for managing Python PyPI distributions.
 
 This python-setuptools module will generate a system package (e.g. RPM) based on a versioned PyPI archive. 
 
