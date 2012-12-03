@@ -1,4 +1,4 @@
-.TH python-setuptools 1 "Mon Dec  3 09:38:33 PST 2012" "Version 1.0.0" "RERUN User Manual" 
+.TH python-setuptools 1 "Mon Dec  3 14:24:38 PST 2012" "Version 1.0.0" "RERUN User Manual" 
 .SH NAME
 python-setuptools \- Interface module to the python setuptools for building and distributing python packages
 .PP
@@ -9,7 +9,7 @@ rerun [ARGS] python-setuptools: [ build ] [OPTIONS]
 \f[]
 
 .SH COMMANDS
-.SH python-setuptools:build \f[][--format <rpm>] --version <> --directory <> [--url <http://pypi.python.org/packages/source>] --name <>
+.SH python-setuptools:build \f[][--format <rpm>] --version <> --directory <> [--url <http://pypi.python.org/packages/source>] --name <> [--release <1>]
 
 Produce a package of indicated format based on a PyPI based distribution
 .PP
@@ -44,6 +44,13 @@ arguments: \f[I]true\f[]
 .B \--name \f[]name of the PyPI archive to package\f[]
 required: \f[I]true\f[] ,
 arguments: \f[I]true\f[]
+.RS
+.RE
+.TP
+.B \--release \f[]The package release\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]1\f[]
 .RS
 .RE ; # command section done.
 

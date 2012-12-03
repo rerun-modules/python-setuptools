@@ -48,6 +48,12 @@ it_succeeds_with_Pygments<span class="o">()</span> <span class="o">{</span>
    rm -rf <span class="s2">&quot;${tmpDir}&quot;</span>
 <span class="o">}</span>
 
+it_succeeds_with_PygmentsAndRelease<span class="o">()</span> <span class="o">{</span>
+   <span class="nv">tmpDir</span><span class="o">=</span><span class="k">$(</span>mktemp -d<span class="k">)</span>
+   rerun python-setuptools:build --version 1.5 --release 5 --directory <span class="s2">&quot;${tmpDir}&quot;</span> --name Pygments 
+   rpm -qp <span class="s2">&quot;${tmpDir}/Pygments-1.5-5.noarch.rpm&quot;</span>
+   rm -rf <span class="s2">&quot;${tmpDir}&quot;</span>
+<span class="o">}</span>
 
 
 </pre></div></td></tr><tr><td class=docs>

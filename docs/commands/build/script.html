@@ -36,7 +36,7 @@ and show its options.</p>
 
 </td><td class=code><div class=highlight><pre>
 <span class="c">#/ command: python-setuptools:build: &quot;Produce a package of indicated format based on a PyPI based distribution&quot;</span>
-<span class="c">#/ usage: rerun python-setuptools:build [ --format &lt;rpm&gt;]  --version &lt;&gt;  --directory &lt;&gt; [ --url &lt;http://pypi.python.org/packages/source&gt;]  --name &lt;&gt; </span>
+<span class="c">#/ usage: rerun python-setuptools:build [ --format &lt;rpm&gt;]  --version &lt;&gt;  --directory &lt;&gt; [ --url &lt;http://pypi.python.org/packages/source&gt;]  --name &lt;&gt; [ --release &lt;1&gt;] </span>
 
 </pre></div></td></tr><tr><td class=docs>
 
@@ -99,7 +99,7 @@ declared by <code>rerun</code> or by the option parser function.</p>
 </td><td class=code><div class=highlight><pre>
 
 <span class="c">#/ rerun-variables: RERUN, RERUN_VERSION, RERUN_MODULES, RERUN_MODULE_DIR</span>
-<span class="c">#/ option-variables: FORMAT VERSION DIRECTORY URL NAME</span>
+<span class="c">#/ option-variables: FORMAT VERSION DIRECTORY URL NAME RELEASE</span>
 
 </pre></div></td></tr><tr><td class=docs>
 
@@ -135,24 +135,25 @@ buildrpm<span class="o">()</span> <span class="o">{</span>
 <span class="k">      </span>rerun_die <span class="s2">&quot;Unable to extract distribution $(pwd)/${NAME}-${VERSION}.tar.gz&quot;</span>
    <span class="k">fi</span>
 <span class="k">   </span><span class="nb">cd</span> <span class="k">${</span><span class="nv">NAME</span><span class="k">}</span>-<span class="k">${</span><span class="nv">VERSION</span><span class="k">}</span>
-   <span class="k">if</span> ! python setup.py bdist_rpm &gt; /dev/null 2&gt;&amp;1
+
+   <span class="k">if</span> ! python setup.py bdist_rpm --release <span class="k">${</span><span class="nv">RELEASE</span><span class="k">}</span> &gt; /dev/null 2&gt;&amp;1
    <span class="k">then</span>
 <span class="k">      </span>rerun_die <span class="s2">&quot;python $(pwd)/setup.py bdist_rpm failed&quot;</span>
    <span class="k">fi</span>
-<span class="k">   if</span> <span class="o">[</span> ! -f dist/<span class="k">${</span><span class="nv">NAME</span><span class="k">}</span>-<span class="k">${</span><span class="nv">VERSION</span><span class="k">}</span>-1.noarch.rpm <span class="o">]</span>
+<span class="k">   if</span> <span class="o">[</span> ! -f dist/<span class="k">${</span><span class="nv">NAME</span><span class="k">}</span>-<span class="k">${</span><span class="nv">VERSION</span><span class="k">}</span>-<span class="k">${</span><span class="nv">RELEASE</span><span class="k">}</span>.noarch.rpm <span class="o">]</span>
    <span class="k">then</span>
-<span class="k">      </span>rerun_die <span class="s2">&quot;$(pwd)/dist/${NAME}-${VERSION}-1.noarch.rpm did not get generated&quot;</span>
+<span class="k">      </span>rerun_die <span class="s2">&quot;$(pwd)/dist/${NAME}-${VERSION}-${RELEASE}.noarch.rpm did not get generated&quot;</span>
    <span class="k">fi</span>
-<span class="k">   if</span> ! rpm -qpl dist/<span class="k">${</span><span class="nv">NAME</span><span class="k">}</span>-<span class="k">${</span><span class="nv">VERSION</span><span class="k">}</span>-1.noarch.rpm &gt; /dev/null 2&gt;&amp;1
+<span class="k">   if</span> ! rpm -qpl dist/<span class="k">${</span><span class="nv">NAME</span><span class="k">}</span>-<span class="k">${</span><span class="nv">VERSION</span><span class="k">}</span>-<span class="k">${</span><span class="nv">RELEASE</span><span class="k">}</span>.noarch.rpm &gt; /dev/null 2&gt;&amp;1
    <span class="k">then</span>
-<span class="k">      </span>rerun_die <span class="s2">&quot;$(pwd)/dist/${NAME}-${VERSION}-1.noarch.rpm does appear to be a valid rpm&quot;</span>
+<span class="k">      </span>rerun_die <span class="s2">&quot;$(pwd)/dist/${NAME}-${VERSION}-${RELEASE}.noarch.rpm does appear to be a valid rpm&quot;</span>
    <span class="k">fi</span>
-<span class="k">   if</span> ! cp dist/<span class="k">${</span><span class="nv">NAME</span><span class="k">}</span>-<span class="k">${</span><span class="nv">VERSION</span><span class="k">}</span>-1.noarch.rpm <span class="s2">&quot;${DIRECTORY}&quot;</span>
+<span class="k">   if</span> ! cp dist/<span class="k">${</span><span class="nv">NAME</span><span class="k">}</span>-<span class="k">${</span><span class="nv">VERSION</span><span class="k">}</span>-<span class="k">${</span><span class="nv">RELEASE</span><span class="k">}</span>.noarch.rpm <span class="s2">&quot;${DIRECTORY}&quot;</span>
    <span class="k">then</span>
-<span class="k">      </span>rerun_die <span class="s2">&quot;Unable to copy $(pwd)/dist/${NAME}-${VERSION}-1.noarch.rpm to directory ${DIRECTORY}&quot;</span>
+<span class="k">      </span>rerun_die <span class="s2">&quot;Unable to copy $(pwd)/dist/${NAME}-${VERSION}-${RELEASE}.noarch.rpm to directory ${DIRECTORY}&quot;</span>
    <span class="k">fi</span>
 <span class="k">   </span><span class="nb">cd</span> <span class="k">${</span><span class="nv">popDir</span><span class="k">}</span>
-   rm -rf <span class="s2">&quot;${tmpDir}&quot;</span>
+   <span class="nb">echo </span>rm -rf <span class="s2">&quot;${tmpDir}&quot;</span>
 <span class="o">}</span>
 
 
