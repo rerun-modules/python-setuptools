@@ -1,0 +1,58 @@
+.TH python-setuptools 1 "Mon Dec  3 09:38:33 PST 2012" "Version 1.0.0" "RERUN User Manual" 
+.SH NAME
+python-setuptools \- Interface module to the python setuptools for building and distributing python packages
+.PP
+.SH SYNOPSIS
+.PP
+\f[CR] 
+rerun [ARGS] python-setuptools: [ build ] [OPTIONS]
+\f[]
+
+.SH COMMANDS
+.SH python-setuptools:build \f[][--format <rpm>] --version <> --directory <> [--url <http://pypi.python.org/packages/source>] --name <>
+
+Produce a package of indicated format based on a PyPI based distribution
+.PP
+\f[I]OPTIONS\f[]
+.TP
+.B \--format \f[]output packaging format to produce\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]rpm\f[]
+.RS
+.RE
+.TP
+.B \--version \f[]version of the PyPI distribution to package\f[]
+required: \f[I]true\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE
+.TP
+.B \--directory \f[]Directory location to produce the rpm\f[]
+required: \f[I]true\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE
+.TP
+.B \--url \f[]base url to the python PyPI distribution archives\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]http://pypi.python.org/packages/source\f[]
+.RS
+.RE
+.TP
+.B \--name \f[]name of the PyPI archive to package\f[]
+required: \f[I]true\f[] ,
+arguments: \f[I]true\f[]
+.RS
+.RE ; # command section done.
+
+.SH RETURN VALUES
+.PP
+Successful completion: 0
+.SH AUTHORS
+chuck
+.SH "SEE ALSO"
+rerun
+.SH KEYWORDS
+python-setuptools

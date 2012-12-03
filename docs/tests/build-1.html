@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-eqiv='content-type' content='text/html;charset=utf-8'>
+    <title>build-1</title>
+    <link rel=stylesheet href="http://jashkenas.github.com/docco/resources/docco.css">
+</head>
+<body>
+<div id=container>
+    <div id=background></div>
+    <table cellspacing=0 cellpadding=0>
+    <thead>
+      <tr>
+        <th class=docs><h1>build-1</h1></th>
+        <th class=code></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr><td class='docs'><p>This file contains the test plan for the <code>build</code> command.</p>
+
+</td><td class=code><div class=highlight><pre>
+<span class="c">#!/usr/bin/env roundup</span>
+<span class="c">#/ usage:  rerun stubbs:test -m python-setuptools -p build [--answers &lt;&gt;]</span>
+</pre></div></td></tr><tr><td class=docs>
+
+</td><td class=code><div class=highlight><pre>
+
+</pre></div></td></tr><tr><td class=docs>
+
+<p>Helpers</p>
+
+</td><td class=code><div class=highlight><pre>
+<span class="o">[[</span> -f ./functions.sh <span class="o">]]</span> <span class="o">&amp;&amp;</span> . ./functions.sh
+
+</pre></div></td></tr><tr><td class=docs>
+
+<h2>The Plan</h2>
+
+</td><td class=code><div class=highlight><pre>
+
+describe <span class="s2">&quot;build&quot;</span>
+
+
+it_succeeds_with_Pygments<span class="o">()</span> <span class="o">{</span>
+   <span class="nv">tmpDir</span><span class="o">=</span><span class="k">$(</span>mktemp -d<span class="k">)</span>
+   rerun python-setuptools:build --version 1.5 --directory <span class="s2">&quot;${tmpDir}&quot;</span> --name Pygments
+   rpm -qp <span class="s2">&quot;${tmpDir}/Pygments-1.5-1.noarch.rpm&quot;</span>
+   rm -rf <span class="s2">&quot;${tmpDir}&quot;</span>
+<span class="o">}</span>
+
+
+
+</pre></div></td></tr><tr><td class=docs>
+
+</td><td class=code><div class=highlight><pre>
+
+</pre></div></td></tr><tr><td class=docs></td><td class='code'></td></tr>
+    </tbody>
+    </table>
+</div>
+</body>
+</html>
