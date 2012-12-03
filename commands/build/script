@@ -67,12 +67,31 @@ buildrpm() {
    tmpDir=$(mktemp -d)
    popDir=$(pwd)
    cd "${tmpDir}"
-   curl -s -k -f -o ${NAME}-${VERSION}.tar.gz "${distUrl}"
-   tar zxf ${NAME}-${VERSION}.tar.gz
+   if ! curl -s -k -f -o ${NAME}-${VERSION}.tar.gz "${distUrl}"
+   then
+      rerun_die "Unable to download ${distUrl} to temporary location $(pwd)"
+   fi
+   if ! tar zxf ${NAME}-${VERSION}.tar.gz
+   then
+      rerun_die "Unable to extract distribution $(pwd)/${NAME}-${VERSION}.tar.gz"
+   fi
    cd ${NAME}-${VERSION}
-   python setup.py bdist_rpm > /dev/null 2>&1
-   rpm -qpl dist/${NAME}-${VERSION}-1.noarch.rpm > /dev/null 2>&1
-   cp dist/${NAME}-${VERSION}-1.noarch.rpm "${DIRECTORY}"
+   if ! python setup.py bdist_rpm > /dev/null 2>&1
+   then
+      rerun_die "python $(pwd)/setup.py bdist_rpm failed"
+   fi
+   if [ ! -f dist/${NAME}-${VERSION}-1.noarch.rpm ]
+   then
+      rerun_die "$(pwd)/dist/${NAME}-${VERSION}-1.noarch.rpm did not get generated"
+   fi
+   if ! rpm -qpl dist/${NAME}-${VERSION}-1.noarch.rpm > /dev/null 2>&1
+   then
+      rerun_die "$(pwd)/dist/${NAME}-${VERSION}-1.noarch.rpm does appear to be a valid rpm"
+   fi
+   if ! cp dist/${NAME}-${VERSION}-1.noarch.rpm "${DIRECTORY}"
+   then
+      rerun_die "Unable to copy $(pwd)/dist/${NAME}-${VERSION}-1.noarch.rpm to directory ${DIRECTORY}"
+   fi
    cd ${popDir}
    rm -rf "${tmpDir}"
 }
