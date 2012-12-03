@@ -10,7 +10,7 @@
 # and show its options.
 # 
 #/ command: python-setuptools:build: "Produce a package of indicated format based on a PyPI based distribution"
-#/ usage: rerun python-setuptools:build [ --format <rpm>]  --version <>  --directory <> [ --url <http://pypi.python.org/packages/source>]  --name <> 
+#/ usage: rerun python-setuptools:build [ --format <rpm>]  --version <>  --directory <> [ --url <http://pypi.python.org/packages/source>]  --name <> [ --release <1>] 
 
 # Load common functions
 # ---------------------
@@ -47,7 +47,7 @@ set -o nounset -o pipefail
 # declared by `rerun` or by the option parser function.
 
 #/ rerun-variables: RERUN, RERUN_VERSION, RERUN_MODULES, RERUN_MODULE_DIR
-#/ option-variables: FORMAT VERSION DIRECTORY URL NAME
+#/ option-variables: FORMAT VERSION DIRECTORY URL NAME RELEASE
 
 # The `rerun_options_parse` function processes the command line
 # arguments. Each accepted command line flag results in setting 
@@ -76,24 +76,25 @@ buildrpm() {
       rerun_die "Unable to extract distribution $(pwd)/${NAME}-${VERSION}.tar.gz"
    fi
    cd ${NAME}-${VERSION}
-   if ! python setup.py bdist_rpm > /dev/null 2>&1
+
+   if ! python setup.py bdist_rpm --release ${RELEASE} > /dev/null 2>&1
    then
       rerun_die "python $(pwd)/setup.py bdist_rpm failed"
    fi
-   if [ ! -f dist/${NAME}-${VERSION}-1.noarch.rpm ]
+   if [ ! -f dist/${NAME}-${VERSION}-${RELEASE}.noarch.rpm ]
    then
-      rerun_die "$(pwd)/dist/${NAME}-${VERSION}-1.noarch.rpm did not get generated"
+      rerun_die "$(pwd)/dist/${NAME}-${VERSION}-${RELEASE}.noarch.rpm did not get generated"
    fi
-   if ! rpm -qpl dist/${NAME}-${VERSION}-1.noarch.rpm > /dev/null 2>&1
+   if ! rpm -qpl dist/${NAME}-${VERSION}-${RELEASE}.noarch.rpm > /dev/null 2>&1
    then
-      rerun_die "$(pwd)/dist/${NAME}-${VERSION}-1.noarch.rpm does appear to be a valid rpm"
+      rerun_die "$(pwd)/dist/${NAME}-${VERSION}-${RELEASE}.noarch.rpm does appear to be a valid rpm"
    fi
-   if ! cp dist/${NAME}-${VERSION}-1.noarch.rpm "${DIRECTORY}"
+   if ! cp dist/${NAME}-${VERSION}-${RELEASE}.noarch.rpm "${DIRECTORY}"
    then
-      rerun_die "Unable to copy $(pwd)/dist/${NAME}-${VERSION}-1.noarch.rpm to directory ${DIRECTORY}"
+      rerun_die "Unable to copy $(pwd)/dist/${NAME}-${VERSION}-${RELEASE}.noarch.rpm to directory ${DIRECTORY}"
    fi
    cd ${popDir}
-   rm -rf "${tmpDir}"
+   echo rm -rf "${tmpDir}"
 }
 
 

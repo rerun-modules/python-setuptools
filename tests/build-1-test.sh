@@ -22,3 +22,9 @@ it_succeeds_with_Pygments() {
    rm -rf "${tmpDir}"
 }
 
+it_succeeds_with_PygmentsAndRelease() {
+   tmpDir=$(mktemp -d)
+   rerun python-setuptools:build --version 1.5 --release 5 --directory "${tmpDir}" --name Pygments 
+   rpm -qp "${tmpDir}/Pygments-1.5-5.noarch.rpm"
+   rm -rf "${tmpDir}"
+}
