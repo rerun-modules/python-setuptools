@@ -10,7 +10,7 @@
 # and show its options.
 # 
 #/ command: python-setuptools:build: "Produce a package of indicated format based on a PyPI based distribution"
-#/ usage: rerun python-setuptools:build [ --format <rpm>]  --version <>  --directory <> [ --url <http://pypi.python.org/packages/source>]  --name <> [ --release <1>] 
+#/ usage: rerun python-setuptools:build  --version <>  --directory <> [ --url <http://pypi.python.org/packages/source>]  --name <> [ --package-format <rpm>] [ --package-release <1>] [ --package-name <>] 
 
 # Load common functions
 # ---------------------
@@ -47,7 +47,7 @@ set -o nounset -o pipefail
 # declared by `rerun` or by the option parser function.
 
 #/ rerun-variables: RERUN, RERUN_VERSION, RERUN_MODULES, RERUN_MODULE_DIR
-#/ option-variables: FORMAT VERSION DIRECTORY URL NAME RELEASE
+#/ option-variables: VERSION DIRECTORY URL NAME PACKAGE_FORMAT PACKAGE_RELEASE PACKAGE_NAME
 
 # The `rerun_options_parse` function processes the command line
 # arguments. Each accepted command line flag results in setting 
@@ -82,36 +82,52 @@ buildrpm() {
    fi
    cd ${NAME}-${VERSION}
 
-   if ! python setup.py bdist_rpm --release ${RELEASE} > /dev/null 2>&1
+   bdistRpmParams=
+   [[ -n "${PACKAGE_RELEASE}" ]] && bdistRpmParams="--release ${PACKAGE_RELEASE}"
+
+   #[[ -n "${PACKAGER}" ]] && bdistRpmParams="--packager ${PACKAGER} ${bdistRpmParams}"
+
+   #
+   # this is a hack to allow us to control the name of the packaged rpm which may need to differ from the hardcoded name from PyPI repo.
+   #
+   if [[ -n "${PACKAGE_NAME}" ]] 
    then
-      rerun_die "python $(pwd)/setup.py bdist_rpm failed"
+      sed -i "s/\(^ *name *= *\)\(.*\)$/\1'${PACKAGE_NAME}',/g" setup.py 
+   else
+      PACKAGE_NAME=$NAME
    fi
-   if [ ! -f dist/${NAME}-${VERSION}-${RELEASE}.noarch.rpm ]
+
+   #if ! python setup.py bdist_rpm --release ${PACKAGE_RELEASE} > /dev/null 2>&1
+    if ! python setup.py bdist_rpm ${bdistRpmParams} > /dev/null 2>&1
    then
-      rerun_die "$(pwd)/dist/${NAME}-${VERSION}-${RELEASE}.noarch.rpm did not get generated"
+      rerun_die "python $(pwd)/setup.py bdist_rpm ${bdistRpmParams} failed"
    fi
-   if ! rpm -qpl dist/${NAME}-${VERSION}-${RELEASE}.noarch.rpm > /dev/null 2>&1
+   if [ ! -f dist/${PACKAGE_NAME}-${VERSION}-${PACKAGE_RELEASE}.noarch.rpm ]
    then
-      rerun_die "$(pwd)/dist/${NAME}-${VERSION}-${RELEASE}.noarch.rpm does appear to be a valid rpm"
+      rerun_die "$(pwd)/dist/${PACKAGE_NAME}-${VERSION}-${PACKAGE_RELEASE}.noarch.rpm did not get generated"
    fi
-   if ! cp dist/${NAME}-${VERSION}-${RELEASE}.noarch.rpm "${DIRECTORY}"
+   if ! rpm -qpl dist/${PACKAGE_NAME}-${VERSION}-${PACKAGE_RELEASE}.noarch.rpm > /dev/null 2>&1
    then
-      rerun_die "Unable to copy $(pwd)/dist/${NAME}-${VERSION}-${RELEASE}.noarch.rpm to directory ${DIRECTORY}"
+      rerun_die "$(pwd)/dist/${PACKAGE_NAME}-${VERSION}-${PACKAGE_RELEASE}.noarch.rpm does appear to be a valid rpm"
+   fi
+   if ! cp dist/${PACKAGE_NAME}-${VERSION}-${PACKAGE_RELEASE}.noarch.rpm "${DIRECTORY}"
+   then
+      rerun_die "Unable to copy $(pwd)/dist/${PACKAGE_NAME}-${VERSION}-${PACKAGE_RELEASE}.noarch.rpm to directory ${DIRECTORY}"
    fi
    cd ${popDir}
-   echo rm -rf "${tmpDir}"
+   rm -rf "${tmpDir}"
 }
 
 
 #
 # Supported output format (RPM only)
 #
-case $FORMAT in
+case ${PACKAGE_FORMAT} in
    "rpm")
       buildrpm 
       ;;
    *)
-      rerun_die "invalid format ${FORMAT}"
+      rerun_die "invalid format ${PACKAGE_FORMAT}"
       ;;
 esac
 
