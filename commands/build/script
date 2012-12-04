@@ -10,7 +10,7 @@
 # and show its options.
 # 
 #/ command: python-setuptools:build: "Produce a package of indicated format based on a PyPI based distribution"
-#/ usage: rerun python-setuptools:build  --version <>  --directory <> [ --url <http://pypi.python.org/packages/source>]  --name <> [ --package-format <rpm>] [ --package-release <1>] [ --package-name <>] 
+#/ usage: rerun python-setuptools:build  --version <>  --directory <> [ --url <http://pypi.python.org/packages/source>]  --name <> [ --package-format <rpm>] [ --package-release <1>] [ --package-name <>] [ --packager <>] 
 
 # Load common functions
 # ---------------------
@@ -47,7 +47,7 @@ set -o nounset -o pipefail
 # declared by `rerun` or by the option parser function.
 
 #/ rerun-variables: RERUN, RERUN_VERSION, RERUN_MODULES, RERUN_MODULE_DIR
-#/ option-variables: VERSION DIRECTORY URL NAME PACKAGE_FORMAT PACKAGE_RELEASE PACKAGE_NAME
+#/ option-variables: VERSION DIRECTORY URL NAME PACKAGE_FORMAT PACKAGE_RELEASE PACKAGE_NAME PACKAGER
 
 # The `rerun_options_parse` function processes the command line
 # arguments. Each accepted command line flag results in setting 
@@ -85,7 +85,7 @@ buildrpm() {
    bdistRpmParams=
    [[ -n "${PACKAGE_RELEASE}" ]] && bdistRpmParams="--release ${PACKAGE_RELEASE}"
 
-   #[[ -n "${PACKAGER}" ]] && bdistRpmParams="--packager ${PACKAGER} ${bdistRpmParams}"
+   [[ -n "${PACKAGER}" ]] && bdistRpmParams="--packager '${PACKAGER}' ${bdistRpmParams}"
 
    #
    # this is a hack to allow us to control the name of the packaged rpm which may need to differ from the hardcoded name from PyPI repo.
@@ -98,7 +98,7 @@ buildrpm() {
    fi
 
    #if ! python setup.py bdist_rpm --release ${PACKAGE_RELEASE} > /dev/null 2>&1
-    if ! python setup.py bdist_rpm ${bdistRpmParams} > /dev/null 2>&1
+   if ! eval python setup.py bdist_rpm "${bdistRpmParams}" > /dev/null 2>&1
    then
       rerun_die "python $(pwd)/setup.py bdist_rpm ${bdistRpmParams} failed"
    fi

@@ -1,12 +1,12 @@
 [python-setuptools](../../index.html)
 
-# version
+# package-format
 
-version of the PyPI distribution to package
+output packaging format to produce
 
 ## SYNOPSIS
 
-        --version <>
+       [--package-format <rpm>]
 
 ## README
 
@@ -20,13 +20,13 @@ The following commands use this option.
 
 ## METADATA
 
-* `NAME` = version
-* `DESCRIPTION` = "version of the PyPI distribution to package"
+* `NAME` = package-format
+* `DESCRIPTION` = "output packaging format to produce"
 * `ARGUMENTS` = true
-* `REQUIRED` = true
+* `REQUIRED` = false
 * `SHORT` = 
-* `LONG` = version
-* `DEFAULT` = 
+* `LONG` = package-format
+* `DEFAULT` = rpm
 * `EXPORT` = false
 
 ----

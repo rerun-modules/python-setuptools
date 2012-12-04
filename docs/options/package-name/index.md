@@ -1,12 +1,12 @@
 [python-setuptools](../../index.html)
 
-# version
+# package-name
 
-version of the PyPI distribution to package
+The name of the produced package . Defaults to the name of the PyPI distribution
 
 ## SYNOPSIS
 
-        --version <>
+       [--package-name <>]
 
 ## README
 
@@ -20,12 +20,12 @@ The following commands use this option.
 
 ## METADATA
 
-* `NAME` = version
-* `DESCRIPTION` = "version of the PyPI distribution to package"
+* `NAME` = package-name
+* `DESCRIPTION` = "The name of the produced package .  Defaults to the name of the PyPI distribution"
 * `ARGUMENTS` = true
-* `REQUIRED` = true
+* `REQUIRED` = false
 * `SHORT` = 
-* `LONG` = version
+* `LONG` = package-name
 * `DEFAULT` = 
 * `EXPORT` = false
 

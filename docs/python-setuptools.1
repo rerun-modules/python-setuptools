@@ -1,4 +1,4 @@
-.TH python-setuptools 1 "Mon Dec  3 15:36:57 PST 2012" "Version 1.0.0" "RERUN User Manual" 
+.TH python-setuptools 1 "Tue Dec  4 14:33:07 PST 2012" "Version 1.1.0" "RERUN User Manual" 
 .SH NAME
 python-setuptools \- Interface module to the python setuptools for building and distributing python packages
 .PP
@@ -9,18 +9,11 @@ rerun [ARGS] python-setuptools: [ build ] [OPTIONS]
 \f[]
 
 .SH COMMANDS
-.SH python-setuptools:build \f[][--format <rpm>] --version <> --directory <> [--url <http://pypi.python.org/packages/source>] --name <> [--release <1>]
+.SH python-setuptools:build \f[]--version <> --directory <> [--url <http://pypi.python.org/packages/source>] --name <> [--package-format <rpm>] [--package-release <1>] [--package-name <>]
 
 Produce a package of indicated format based on a PyPI based distribution
 .PP
 \f[I]OPTIONS\f[]
-.TP
-.B \--format \f[]output packaging format to produce\f[]
-required: \f[I]false\f[] ,
-arguments: \f[I]true\f[]
-, default: \f[I]rpm\f[]
-.RS
-.RE
 .TP
 .B \--version \f[]version of the PyPI distribution to package\f[]
 required: \f[I]true\f[] ,
@@ -28,7 +21,7 @@ arguments: \f[I]true\f[]
 .RS
 .RE
 .TP
-.B \--directory \f[]Directory location to produce the rpm\f[]
+.B \--directory \f[]Directory location to produce the package\f[]
 required: \f[I]true\f[] ,
 arguments: \f[I]true\f[]
 .RS
@@ -41,16 +34,29 @@ arguments: \f[I]true\f[]
 .RS
 .RE
 .TP
-.B \--name \f[]name of the PyPI archive to package\f[]
+.B \--name \f[]name of the PyPI distribution\f[]
 required: \f[I]true\f[] ,
 arguments: \f[I]true\f[]
 .RS
 .RE
 .TP
-.B \--release \f[]The package release\f[]
+.B \--package-format \f[]output packaging format to produce\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
+, default: \f[I]rpm\f[]
+.RS
+.RE
+.TP
+.B \--package-release \f[]The release of the produced package, defaults to 1\f[]
 required: \f[I]false\f[] ,
 arguments: \f[I]true\f[]
 , default: \f[I]1\f[]
+.RS
+.RE
+.TP
+.B \--package-name \f[]The name of the produced package . Defaults to the name of the PyPI distribution\f[]
+required: \f[I]false\f[] ,
+arguments: \f[I]true\f[]
 .RS
 .RE ; # command section done.
 

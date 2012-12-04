@@ -36,7 +36,7 @@ and show its options.</p>
 
 </td><td class=code><div class=highlight><pre>
 <span class="c">#/ command: python-setuptools:build: &quot;Produce a package of indicated format based on a PyPI based distribution&quot;</span>
-<span class="c">#/ usage: rerun python-setuptools:build [ --format &lt;rpm&gt;]  --version &lt;&gt;  --directory &lt;&gt; [ --url &lt;http://pypi.python.org/packages/source&gt;]  --name &lt;&gt; [ --release &lt;1&gt;] </span>
+<span class="c">#/ usage: rerun python-setuptools:build  --version &lt;&gt;  --directory &lt;&gt; [ --url &lt;http://pypi.python.org/packages/source&gt;]  --name &lt;&gt; [ --package-format &lt;rpm&gt;] [ --package-release &lt;1&gt;] [ --package-name &lt;&gt;] </span>
 
 </pre></div></td></tr><tr><td class=docs>
 
@@ -99,7 +99,7 @@ declared by <code>rerun</code> or by the option parser function.</p>
 </td><td class=code><div class=highlight><pre>
 
 <span class="c">#/ rerun-variables: RERUN, RERUN_VERSION, RERUN_MODULES, RERUN_MODULE_DIR</span>
-<span class="c">#/ option-variables: FORMAT VERSION DIRECTORY URL NAME RELEASE</span>
+<span class="c">#/ option-variables: VERSION DIRECTORY URL NAME PACKAGE_FORMAT PACKAGE_RELEASE PACKAGE_NAME</span>
 
 </pre></div></td></tr><tr><td class=docs>
 
@@ -143,24 +143,42 @@ buildrpm<span class="o">()</span> <span class="o">{</span>
    <span class="k">fi</span>
 <span class="k">   </span><span class="nb">cd</span> <span class="k">${</span><span class="nv">NAME</span><span class="k">}</span>-<span class="k">${</span><span class="nv">VERSION</span><span class="k">}</span>
 
-   <span class="k">if</span> ! python setup.py bdist_rpm --release <span class="k">${</span><span class="nv">RELEASE</span><span class="k">}</span> &gt; /dev/null 2&gt;&amp;1
+   <span class="nv">bdistRpmParams</span><span class="o">=</span>
+   <span class="o">[[</span> -n <span class="s2">&quot;${PACKAGE_RELEASE}&quot;</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="nv">bdistRpmParams</span><span class="o">=</span><span class="s2">&quot;--release ${PACKAGE_RELEASE}&quot;</span>
+
+   <span class="c">#[[ -n &quot;${PACKAGER}&quot; ]] &amp;&amp; bdistRpmParams=&quot;--packager ${PACKAGER} ${bdistRpmParams}&quot;</span>
+
+</pre></div></td></tr><tr><td class=docs>
+
+<p>this is a hack to allow us to control the name of the packaged rpm which may need to differ from the hardcoded name from PyPI repo.</p>
+
+</td><td class=code><div class=highlight><pre>
+   <span class="k">if</span> <span class="o">[[</span> -n <span class="s2">&quot;${PACKAGE_NAME}&quot;</span> <span class="o">]]</span> 
    <span class="k">then</span>
-<span class="k">      </span>rerun_die <span class="s2">&quot;python $(pwd)/setup.py bdist_rpm failed&quot;</span>
+<span class="k">      </span>sed -i <span class="s2">&quot;s/\(^ *name *= *\)\(.*\)$/\1&#39;${PACKAGE_NAME}&#39;,/g&quot;</span> setup.py 
+   <span class="k">else</span>
+<span class="k">      </span><span class="nv">PACKAGE_NAME</span><span class="o">=</span><span class="nv">$NAME</span>
    <span class="k">fi</span>
-<span class="k">   if</span> <span class="o">[</span> ! -f dist/<span class="k">${</span><span class="nv">NAME</span><span class="k">}</span>-<span class="k">${</span><span class="nv">VERSION</span><span class="k">}</span>-<span class="k">${</span><span class="nv">RELEASE</span><span class="k">}</span>.noarch.rpm <span class="o">]</span>
+
+   <span class="c">#if ! python setup.py bdist_rpm --release ${PACKAGE_RELEASE} &gt; /dev/null 2&gt;&amp;1</span>
+    <span class="k">if</span> ! python setup.py bdist_rpm <span class="k">${</span><span class="nv">bdistRpmParams</span><span class="k">}</span> &gt; /dev/null 2&gt;&amp;1
    <span class="k">then</span>
-<span class="k">      </span>rerun_die <span class="s2">&quot;$(pwd)/dist/${NAME}-${VERSION}-${RELEASE}.noarch.rpm did not get generated&quot;</span>
+<span class="k">      </span>rerun_die <span class="s2">&quot;python $(pwd)/setup.py bdist_rpm ${bdistRpmParams} failed&quot;</span>
    <span class="k">fi</span>
-<span class="k">   if</span> ! rpm -qpl dist/<span class="k">${</span><span class="nv">NAME</span><span class="k">}</span>-<span class="k">${</span><span class="nv">VERSION</span><span class="k">}</span>-<span class="k">${</span><span class="nv">RELEASE</span><span class="k">}</span>.noarch.rpm &gt; /dev/null 2&gt;&amp;1
+<span class="k">   if</span> <span class="o">[</span> ! -f dist/<span class="k">${</span><span class="nv">PACKAGE_NAME</span><span class="k">}</span>-<span class="k">${</span><span class="nv">VERSION</span><span class="k">}</span>-<span class="k">${</span><span class="nv">PACKAGE_RELEASE</span><span class="k">}</span>.noarch.rpm <span class="o">]</span>
    <span class="k">then</span>
-<span class="k">      </span>rerun_die <span class="s2">&quot;$(pwd)/dist/${NAME}-${VERSION}-${RELEASE}.noarch.rpm does appear to be a valid rpm&quot;</span>
+<span class="k">      </span>rerun_die <span class="s2">&quot;$(pwd)/dist/${PACKAGE_NAME}-${VERSION}-${PACKAGE_RELEASE}.noarch.rpm did not get generated&quot;</span>
    <span class="k">fi</span>
-<span class="k">   if</span> ! cp dist/<span class="k">${</span><span class="nv">NAME</span><span class="k">}</span>-<span class="k">${</span><span class="nv">VERSION</span><span class="k">}</span>-<span class="k">${</span><span class="nv">RELEASE</span><span class="k">}</span>.noarch.rpm <span class="s2">&quot;${DIRECTORY}&quot;</span>
+<span class="k">   if</span> ! rpm -qpl dist/<span class="k">${</span><span class="nv">PACKAGE_NAME</span><span class="k">}</span>-<span class="k">${</span><span class="nv">VERSION</span><span class="k">}</span>-<span class="k">${</span><span class="nv">PACKAGE_RELEASE</span><span class="k">}</span>.noarch.rpm &gt; /dev/null 2&gt;&amp;1
    <span class="k">then</span>
-<span class="k">      </span>rerun_die <span class="s2">&quot;Unable to copy $(pwd)/dist/${NAME}-${VERSION}-${RELEASE}.noarch.rpm to directory ${DIRECTORY}&quot;</span>
+<span class="k">      </span>rerun_die <span class="s2">&quot;$(pwd)/dist/${PACKAGE_NAME}-${VERSION}-${PACKAGE_RELEASE}.noarch.rpm does appear to be a valid rpm&quot;</span>
+   <span class="k">fi</span>
+<span class="k">   if</span> ! cp dist/<span class="k">${</span><span class="nv">PACKAGE_NAME</span><span class="k">}</span>-<span class="k">${</span><span class="nv">VERSION</span><span class="k">}</span>-<span class="k">${</span><span class="nv">PACKAGE_RELEASE</span><span class="k">}</span>.noarch.rpm <span class="s2">&quot;${DIRECTORY}&quot;</span>
+   <span class="k">then</span>
+<span class="k">      </span>rerun_die <span class="s2">&quot;Unable to copy $(pwd)/dist/${PACKAGE_NAME}-${VERSION}-${PACKAGE_RELEASE}.noarch.rpm to directory ${DIRECTORY}&quot;</span>
    <span class="k">fi</span>
 <span class="k">   </span><span class="nb">cd</span> <span class="k">${</span><span class="nv">popDir</span><span class="k">}</span>
-   <span class="nb">echo </span>rm -rf <span class="s2">&quot;${tmpDir}&quot;</span>
+   rm -rf <span class="s2">&quot;${tmpDir}&quot;</span>
 <span class="o">}</span>
 
 
@@ -169,12 +187,12 @@ buildrpm<span class="o">()</span> <span class="o">{</span>
 <p>Supported output format (RPM only)</p>
 
 </td><td class=code><div class=highlight><pre>
-<span class="k">case</span> <span class="nv">$FORMAT</span> in
+<span class="k">case</span> <span class="k">${</span><span class="nv">PACKAGE_FORMAT</span><span class="k">}</span> in
    <span class="s2">&quot;rpm&quot;</span><span class="o">)</span>
       buildrpm 
       ;;
    *<span class="o">)</span>
-      rerun_die <span class="s2">&quot;invalid format ${FORMAT}&quot;</span>
+      rerun_die <span class="s2">&quot;invalid format ${PACKAGE_FORMAT}&quot;</span>
       ;;
 <span class="k">esac</span>
 

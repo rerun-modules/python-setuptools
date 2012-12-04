@@ -8,4 +8,5 @@ Use the `stubbs:test` command to to run test plans.
 * [build-1](tests/build-1.html)
   * it succeeds with Pygments
   * it succeeds with PygmentsAndRelease
+  * it succeeds with NewPackageNameAndRelease
 

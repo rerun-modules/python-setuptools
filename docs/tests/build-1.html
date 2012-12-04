@@ -50,9 +50,29 @@ it_succeeds_with_Pygments<span class="o">()</span> <span class="o">{</span>
 
 it_succeeds_with_PygmentsAndRelease<span class="o">()</span> <span class="o">{</span>
    <span class="nv">tmpDir</span><span class="o">=</span><span class="k">$(</span>mktemp -d<span class="k">)</span>
-   rerun python-setuptools:build --version 1.5 --release 5 --directory <span class="s2">&quot;${tmpDir}&quot;</span> --name Pygments 
+   rerun python-setuptools:build --version 1.5 --package-release 5 --directory <span class="s2">&quot;${tmpDir}&quot;</span> --name Pygments 
    rpm -qp <span class="s2">&quot;${tmpDir}/Pygments-1.5-5.noarch.rpm&quot;</span>
    rm -rf <span class="s2">&quot;${tmpDir}&quot;</span>
+<span class="o">}</span>
+
+it_succeeds_with_NewPackageNameAndRelease<span class="o">()</span> <span class="o">{</span>
+   <span class="nv">tmpDir</span><span class="o">=</span><span class="k">$(</span>mktemp -d<span class="k">)</span>
+   rerun python-setuptools:build --version 1.5 --package-name MyPygments --package-release 5 --directory <span class="s2">&quot;${tmpDir}&quot;</span> --name Pygments 
+
+   <span class="k">if</span> <span class="o">[</span> ! -f <span class="k">${</span><span class="nv">tmpDir</span><span class="k">}</span>/MyPygments-1.5-5.noarch.rpm <span class="o">]</span>
+   <span class="k">then</span>
+<span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;expected package filename \&quot;${tmpDir}/MyPygments-1.5-5.noarch.rpm\&quot; was not generated&quot;</span> 1&gt;&amp;2
+      <span class="k">return </span>1
+   <span class="k">fi</span>
+
+<span class="k">   </span><span class="nv">queryName</span><span class="o">=</span><span class="s2">&quot;$(rpm -qp &quot;</span><span class="k">${</span><span class="nv">tmpDir</span><span class="k">}</span>/MyPygments-1.5-5.noarch.rpm<span class="s2">&quot; --qf &#39;%{NAME}&#39;)&quot;</span>
+   <span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;${queryName}&quot;</span> !<span class="o">=</span> MyPygments <span class="o">]</span>
+   <span class="k">then</span>
+<span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;queried package name ${queryName} does not match expected name:  MyPygments&quot;</span> 1&gt;&amp;2
+      <span class="k">return </span>1
+   <span class="k">fi</span>
+
+<span class="k">   return </span>0
 <span class="o">}</span>
 
 
