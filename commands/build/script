@@ -97,27 +97,43 @@ buildrpm() {
       PACKAGE_NAME=$NAME
    fi
 
-   #if ! python setup.py bdist_rpm --release ${PACKAGE_RELEASE} > /dev/null 2>&1
    if ! eval python setup.py bdist_rpm "${bdistRpmParams}" > /dev/null 2>&1
    then
       rerun_die "python $(pwd)/setup.py bdist_rpm ${bdistRpmParams} failed"
    fi
-   if [ ! -f dist/${PACKAGE_NAME}-${VERSION}-${PACKAGE_RELEASE}.noarch.rpm ]
+
+   #
+   # search for a produced rpm archive based on possible architectures:  noarch, i386, and x86_64.
+   # if none are found, we shall assume failure.
+   #
+   foundArch=0
+   for arch in noarch i386 x86_64
+   do
+      distProduced=$(pwd)/dist/${PACKAGE_NAME}-${VERSION}-${PACKAGE_RELEASE}.${arch}.rpm
+
+      if [ -f "${distProduced}" ]
+      then
+         foundArch=1
+         break
+      fi
+   done
+   if [ $foundArch = 0 ]
    then
-      rerun_die "$(pwd)/dist/${PACKAGE_NAME}-${VERSION}-${PACKAGE_RELEASE}.noarch.rpm did not get generated"
+      rerun_die "dist matching $(pwd)/dist/${PACKAGE_NAME}-${VERSION}-${PACKAGE_RELEASE}.{noarch,i386,x86_64}.rpm did not get generated"
    fi
-   if ! rpm -qpl dist/${PACKAGE_NAME}-${VERSION}-${PACKAGE_RELEASE}.noarch.rpm > /dev/null 2>&1
+
+   if ! rpm -qpl ${distProduced} > /dev/null 2>&1
    then
-      rerun_die "$(pwd)/dist/${PACKAGE_NAME}-${VERSION}-${PACKAGE_RELEASE}.noarch.rpm does appear to be a valid rpm"
+      rerun_die "${distProduced} does appear to be a valid rpm"
    fi
-   if ! cp dist/${PACKAGE_NAME}-${VERSION}-${PACKAGE_RELEASE}.noarch.rpm "${DIRECTORY}"
+   if ! cp ${distProduced} "${DIRECTORY}"
    then
-      rerun_die "Unable to copy $(pwd)/dist/${PACKAGE_NAME}-${VERSION}-${PACKAGE_RELEASE}.noarch.rpm to directory ${DIRECTORY}"
+      rerun_die "Unable to copy ${distProduced} to directory ${DIRECTORY}"
    fi
    cd ${popDir}
    rm -rf "${tmpDir}"
+   echo "produced ${DIRECTORY}/$(basename ${distProduced})"
 }
-
 
 #
 # Supported output format (RPM only)
