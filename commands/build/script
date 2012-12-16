@@ -10,7 +10,7 @@
 # and show its options.
 # 
 #/ command: python-setuptools:build: "Produce a package of indicated format based on a PyPI based distribution"
-#/ usage: rerun python-setuptools:build  --version <>  --directory <> [ --url <http://pypi.python.org/packages/source>]  --name <> [ --package-format <rpm>] [ --package-release <1>] [ --package-name <>] [ --packager <>] 
+#/ usage: rerun python-setuptools:build  --version <>  --directory <> [ --url <http://pypi.python.org/packages/source>]  --name <> [ --package-format <rpm>] [ --package-release <1>] [ --package-name <>] [ --packager <>] [ --format <tar.gz>] 
 
 # Load common functions
 # ---------------------
@@ -47,7 +47,7 @@ set -o nounset -o pipefail
 # declared by `rerun` or by the option parser function.
 
 #/ rerun-variables: RERUN, RERUN_VERSION, RERUN_MODULES, RERUN_MODULE_DIR
-#/ option-variables: VERSION DIRECTORY URL NAME PACKAGE_FORMAT PACKAGE_RELEASE PACKAGE_NAME PACKAGER
+#/ option-variables: VERSION DIRECTORY URL NAME PACKAGE_FORMAT PACKAGE_RELEASE PACKAGE_NAME PACKAGER FORMAT
 
 # The `rerun_options_parse` function processes the command line
 # arguments. Each accepted command line flag results in setting 
@@ -59,6 +59,34 @@ rerun_options_parse "$@"
 # Command implementation
 # ----------------------
 
+unarchive() {
+
+   archive="$1"
+
+   case ${FORMAT} in
+      "tar.gz")
+         if ! tar xf "${archive}"
+         then
+            echo "unable to untar archive ${archive}" 1>&2
+            return 1
+         fi
+         ;;
+      "zip")
+         if ! unzip "${archive}"
+         then
+            echo "unable to unzip archive ${archive}" 1>&2
+            return 1
+         fi
+         ;;
+      *)
+         echo "unsupported archive format: ${FORMAT}" 1>&2
+         return 1
+         ;;
+   esac
+
+   return 0
+}
+
 #
 # From the PyPI name and version information, derive a url to download the tgz distribution.
 # Execute the python setup bdist_rpm (see http://docs.python.org/release/2.0/dist/creating-rpms.html) on the extracted
@@ -68,17 +96,17 @@ rerun_options_parse "$@"
 buildrpm() {
    mkdir -p "${DIRECTORY}"
    N=$(echo "${NAME}" |cut -c1)
-   distUrl="${URL}/${N}/${NAME}/${NAME}-${VERSION}.tar.gz"
+   distUrl="${URL}/${N}/${NAME}/${NAME}-${VERSION}.${FORMAT}"
    tmpDir=$(mktemp -d)
    popDir=$(pwd)
    cd "${tmpDir}"
-   if ! curl -s -k -f -o ${NAME}-${VERSION}.tar.gz "${distUrl}"
+   if ! curl -s -k -f -o ${NAME}-${VERSION}.${FORMAT} "${distUrl}"
    then
       rerun_die "Unable to download ${distUrl} to temporary location $(pwd)"
    fi
-   if ! tar zxf ${NAME}-${VERSION}.tar.gz
+   if ! unarchive ${NAME}-${VERSION}.${FORMAT}
    then
-      rerun_die "Unable to extract distribution $(pwd)/${NAME}-${VERSION}.tar.gz"
+      rerun_die "Unable to extract distribution $(pwd)/${NAME}-${VERSION}.${FORMAT}"
    fi
    cd ${NAME}-${VERSION}
 

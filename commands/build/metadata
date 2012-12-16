@@ -3,4 +3,4 @@
 # Fri Nov 30 15:21:53 PST 2012
 NAME=build
 DESCRIPTION="Produce a package of indicated format based on a PyPI based distribution"
-OPTIONS="version directory url name package-format package-release package-name packager"
+OPTIONS="version directory url name package-format package-release package-name packager format"
